@@ -47,34 +47,27 @@ fi
 
 echo ""
 
-# Run the applet
+# Run the standalone application
 echo "Starting BattleRobots..."
 echo ""
-echo "Note: appletviewer is deprecated in modern Java versions."
-echo "If appletviewer is not available, you can:"
-echo "  1. Open BattleRobots.html in a browser with Java plugin"
-echo "  2. Convert the applet to a standalone application"
+echo "BattleRobots is now a standalone Java application."
+echo "Use the following controls:"
+echo "  - Click on cells to create/remove robots"
+echo "  - Click 'Start' to begin the simulation"
+echo "  - Click 'Stop' to pause the simulation"
+echo "  - Click 'Next' to advance one time step"
+echo "  - Use UP/DOWN arrow keys to adjust simulation speed"
+echo ""
+echo "Robots use linear regression AI to decide when to attack!"
 echo ""
 
-if command_exists appletviewer; then
-    echo "Running with appletviewer..."
-    appletviewer BattleRobots.html
+java BattleRobots
+
+if [ $? -eq 0 ]; then
+    echo ""
+    echo "✓ BattleRobots closed successfully"
 else
-    echo "=================================="
-    echo "appletviewer not found!"
-    echo "=================================="
     echo ""
-    echo "Modern Java versions (9+) have removed appletviewer."
-    echo ""
-    echo "Alternative options:"
-    echo ""
-    echo "1. Install an older Java version (Java 8) that includes appletviewer:"
-    echo "   brew install --cask temurin@8"
-    echo ""
-    echo "2. The compiled .class files are ready at:"
-    echo "   $(pwd)"
-    echo ""
-    echo "   You can embed them in a browser with Java plugin support"
-    echo "   or convert the applet to a standalone application."
-    echo ""
+    echo "✗ Error running BattleRobots"
+    exit 1
 fi

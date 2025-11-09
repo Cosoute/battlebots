@@ -13,12 +13,12 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;  // javax.swing is required for JApplet
+import javax.swing.*;
 
-// Assignment1: BattleRobots inherits JApplet and uses the interfaces 'Runnable' (used for applets)
-// 'ActionListener' (used for mouse actions) and 'KeyListener' (used for keyboard actions).
-// 'JApplet' is required if you want to create an Applet
-public class BattleRobots extends JApplet implements Runnable, ActionListener, KeyListener
+// BattleRobots is now a standalone JFrame application instead of an applet
+// It implements Runnable (for threading), ActionListener (for button actions),
+// and KeyListener (for keyboard actions)
+public class BattleRobots extends JFrame implements Runnable, ActionListener, KeyListener
 {
 
         // Class Variables are defined here
@@ -47,50 +47,30 @@ public class BattleRobots extends JApplet implements Runnable, ActionListener, K
 
         private boolean shuttingDown = false;
 
-        // Syntax: the method init() is needed for Applets.
-        public void init()
+        // Constructor for the BattleRobots application
+        public BattleRobots()
         {
-                String param;
-
-                // set background
+                // Set window properties
+                setTitle("BattleRobots - AI Battle Simulation");
                 setBackground( new Color( 0x999999 ) );
 
-                // read parameters from HTML
-                param = getParameter("cellsize");
-                if ( param == null) {
-                        cellSize = 10;
-                } else
-                        cellSize = Integer.valueOf( param ).intValue();
+                // Use default values instead of reading from HTML parameters
+                cellSize = 10;
+                cellCols = 80;
+                cellRows = 80;
+                genTime = 500;
 
-                param = getParameter("cellcols");
-                if ( param == null ) {
-                        cellCols = 100;
-                } else
-                        cellCols = Integer.valueOf( param ).intValue();
-
-                param = getParameter("cellrows");
-                if ( param == null ) {
-                        cellRows = 100;
-                } else
-                        cellRows = Integer.valueOf( param ).intValue();
-
-                param = getParameter("gentime");
-                if ( param == null ) {
-                        genTime = 500;
-                } else
-                        genTime = Integer.valueOf( param ).intValue();
-
-                // Syntax: Instanciate new object called 'cellSpace' from 'CellSpace'-Class
+                // Instantiate new object called 'cellSpace' from 'CellSpace'-Class
                 cellSpace = new CellSpace( cellSize, cellCols, cellRows );
 
                 // create components and add them to container
-                // Syntax: Instanciate new object called 'timeLabel' from 'Label'-Class
+                // Instantiate new object called 'timeLabel' from 'Label'-Class
                 timeLabel = new Label( "Time: 0           " );
 
-                // Syntax: Instanciate new object called 'startStopButton' from 'JButton'-Class
+                // Instantiate new object called 'startStopButton' from 'JButton'-Class
                 // JButton class
                 startStopButton = new JButton( startText );
-                // Syntax: Instanciate new object called 'nextButton' from 'JButtion'-Class
+                // Instantiate new object called 'nextButton' from 'JButton'-Class
                 nextButton = new JButton( nextText );
 
                 JPanel controls = new JPanel(new BorderLayout());
@@ -98,7 +78,7 @@ public class BattleRobots extends JApplet implements Runnable, ActionListener, K
                 controls.add( startStopButton );
                 controls.add( timeLabel );
 
-                //
+                // Set up the content pane
                 Container c = getContentPane();
                 c.setLayout(new BorderLayout());
                 c.add( "South", controls );
@@ -106,6 +86,23 @@ public class BattleRobots extends JApplet implements Runnable, ActionListener, K
 
                 startStopButton.addActionListener(this);
                 nextButton.addActionListener(this);
+
+                // Window settings for standalone application
+                setSize(cellSize * cellCols, cellSize * cellRows + 100);
+                setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                setLocationRelativeTo(null); // Center the window
+        }
+
+        // Main method to launch the application
+        public static void main(String[] args)
+        {
+                // Create and display the application window
+                SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                                BattleRobots app = new BattleRobots();
+                                app.setVisible(true);
+                        }
+                });
         }
 
         // no start() to prevent starting immediately
@@ -154,7 +151,7 @@ public class BattleRobots extends JApplet implements Runnable, ActionListener, K
                 default:
                         break; // nothing for us here
                 }
-                showStatus( "Delay is "+genTime+" ms" );
+                System.out.println( "Delay is "+genTime+" ms" );
         }
 
         public void keyPressed(KeyEvent keyEvent) {
@@ -183,11 +180,6 @@ public class BattleRobots extends JApplet implements Runnable, ActionListener, K
                     startStopButton.setText( startText );
                 }
             }
-        }
-
-        public String getAppletInfo()
-        {
-                return "BattleRobots";
         }
 
         // Assignment2.9c:  (See 2.9a and 2.9b) To resolve this problem, add an access
