@@ -228,16 +228,23 @@ public class BattleRobots extends JApplet implements Runnable, ActionListener, K
              // its reference to the specified array element.
              // JR changed from "cells[x / cellSize][y / cellSize] = !cells[x / cellSize][y / cellSize];"
              if (cells[x / cellSize][y / cellSize] == null)
+             {
                  // Assignment2.15: Now go back and modify the "toggling" code so that the statement:
                  // "cells[x / cellSize][y / cellSize] = new Robot();"
                  // becomes:...
-                 cells[x / cellSize][y / cellSize] = new Robot(BattleRobots.this);
+                 Robot newRobot = new Robot(BattleRobots.this);
+                 // Set the position of the robot in the grid
+                 newRobot.setPosition(x / cellSize, y / cellSize);
+                 cells[x / cellSize][y / cellSize] = newRobot;
                  // Note we are preceeding the "this" keyword with the BattleRobots class specification
                  // We need to do this since the "this reference is being used inside and inner inner class
                  // and we need to specify the "this" of the enclosing object, rather than the inner object
                  // Don't worry if this is unclear to you at this time. We cover it later.
+             }
              else
+             {
                 cells[x / cellSize][y / cellSize] = null;
+             }
             repaint();
             }
 
@@ -338,6 +345,17 @@ public class BattleRobots extends JApplet implements Runnable, ActionListener, K
           // create next battle configuration
           public synchronized void next() {
                 time++;
+
+                // Execute AI behavior for all robots
+                for( int x = 0; x < cellCols; x++ ) {
+                        for( int y = 0; y < cellRows; y++ ) {
+                                Robot robot = cells[x][y];
+                                if (robot != null && robot.isAlive()) {
+                                        // Execute the linear regression-based decision-making
+                                        robot.executeBehavior(cells, cellCols, cellRows);
+                                }
+                        }
+                }
           }
 	}  // end of class CellSpace
 }
