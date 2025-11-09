@@ -223,9 +223,65 @@ public class Robot extends Object
   }
 
   /**
-   * Execute the AI decision-making process for this robot
+   * Calculate the next position to move towards (for attack) or away from (for retreat)
+   * Returns an array [newX, newY] or null if no valid move
    */
-  public void executeBehavior(Robot[][] cells, int cellCols, int cellRows)
+  public int[] calculateNextMove(Robot opponent, Robot[][] cells, int cellCols, int cellRows, boolean shouldAttack)
+  {
+    if (opponent == null) {
+      return null;
+    }
+
+    int dx = 0;
+    int dy = 0;
+
+    // Calculate direction to opponent
+    if (opponent.gridX > this.gridX) dx = 1;
+    else if (opponent.gridX < this.gridX) dx = -1;
+
+    if (opponent.gridY > this.gridY) dy = 1;
+    else if (opponent.gridY < this.gridY) dy = -1;
+
+    // If retreating, reverse direction
+    if (!shouldAttack) {
+      dx = -dx;
+      dy = -dy;
+    }
+
+    // Try to move in the calculated direction
+    int newX = this.gridX + dx;
+    int newY = this.gridY + dy;
+
+    // Check bounds
+    if (newX < 0 || newX >= cellCols || newY < 0 || newY >= cellRows) {
+      return null;
+    }
+
+    // Check if target cell is empty
+    if (cells[newX][newY] != null) {
+      // Try alternate moves if direct path is blocked
+      // Try moving only in X direction
+      int altX = this.gridX + dx;
+      if (dx != 0 && altX >= 0 && altX < cellCols && cells[altX][this.gridY] == null) {
+        return new int[] {altX, this.gridY};
+      }
+      // Try moving only in Y direction
+      int altY = this.gridY + dy;
+      if (dy != 0 && altY >= 0 && altY < cellRows && cells[this.gridX][altY] == null) {
+        return new int[] {this.gridX, altY};
+      }
+      // No valid moves
+      return null;
+    }
+
+    return new int[] {newX, newY};
+  }
+
+  /**
+   * Execute the AI decision-making process for this robot
+   * Returns the new position [x, y] if robot should move, or null if staying put
+   */
+  public int[] executeBehavior(Robot[][] cells, int cellCols, int cellRows)
   {
     // Find closest opponent
     Robot opponent = findClosestOpponent(cells, cellCols, cellRows);
@@ -233,18 +289,13 @@ public class Robot extends Object
     // Make decision based on linear regression model
     boolean shouldAttack = makeDecision(opponent);
 
-    // The decision is stored in currentDecision for rendering/debugging
-    // Actual attack/retreat behavior could be implemented here
-    if (shouldAttack && opponent != null)
+    // Calculate and return next move
+    if (opponent != null)
     {
-      // Attack logic - could inflict damage, move closer, etc.
-      // For now, we just record the decision
+      return calculateNextMove(opponent, cells, cellCols, cellRows, shouldAttack);
     }
-    else if (opponent != null)
-    {
-      // Retreat logic - could move away, defend, etc.
-      // For now, we just record the decision
-    }
+
+    return null; // No move
   }
 
   /**
@@ -266,7 +317,7 @@ public class Robot extends Object
 
   // Assignment2.8: Therefore, in the Robot class, add a render() method that
   // accepts 4 int parameters an invoke g.fillRect(...) with these parameters.
-  public void render(int inpX, int inpY, int inpWidth, int inpHeight)
+  public void render(Graphics g, int inpX, int inpY, int inpWidth, int inpHeight)
   {
     // Assignment2.9a: Now we've got a problem.  Our Robot class is using g as a
     // reference to the Graphics object. That object reference resides in the

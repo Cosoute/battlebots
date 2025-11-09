@@ -73,10 +73,10 @@ public class BattleRobots extends JFrame implements Runnable, ActionListener, Ke
                 // Instantiate new object called 'nextButton' from 'JButton'-Class
                 nextButton = new JButton( nextText );
 
-                JPanel controls = new JPanel(new BorderLayout());
+                JPanel controls = new JPanel(new FlowLayout());
+                controls.add( timeLabel );
                 controls.add( nextButton );
                 controls.add( startStopButton );
-                controls.add( timeLabel );
 
                 // Set up the content pane
                 Container c = getContentPane();
@@ -259,9 +259,13 @@ public class BattleRobots extends JFrame implements Runnable, ActionListener, Ke
                 cellSize = inpCellSize;
                 cellCols = inpCellCols;
                 cellRows = inpCellRows;
-                setBounds(0, 0, cellSize*cellCols-1, cellSize*cellRows-1);
                 clear();
                 addMouseListener(mouseListener);
+          }
+
+          @Override
+          public Dimension getPreferredSize() {
+                return new Dimension(cellSize * cellCols, cellSize * cellRows);
           }
 
           // Assignment2.12: Since the parameter name of the update()  method is "theG", you should change that
@@ -314,7 +318,7 @@ public class BattleRobots extends JFrame implements Runnable, ActionListener, Ke
                                         // Assignment2.7: With the method render() we are moving the responsibility
                                         // of drawing the Robot object out of the BattleRobots class and into the Robot class
                                         // which is where it should be.
-                                        cells[x][y].render(x*cellSize, y*cellSize, cellSize-1, cellSize-1);
+                                        cells[x][y].render(g, x*cellSize, y*cellSize, cellSize-1, cellSize-1);
                                         //g.fillRect( x*cellSize, y*cellSize, cellSize-1, cellSize-1 );
                                 }
                         }
@@ -338,14 +342,37 @@ public class BattleRobots extends JFrame implements Runnable, ActionListener, Ke
           public synchronized void next() {
                 time++;
 
-                // Execute AI behavior for all robots
+                // Store planned moves to avoid concurrent modification
+                java.util.ArrayList<int[]> moves = new java.util.ArrayList<>();
+
+                // Execute AI behavior for all robots and collect their moves
                 for( int x = 0; x < cellCols; x++ ) {
                         for( int y = 0; y < cellRows; y++ ) {
                                 Robot robot = cells[x][y];
                                 if (robot != null && robot.isAlive()) {
                                         // Execute the linear regression-based decision-making
-                                        robot.executeBehavior(cells, cellCols, cellRows);
+                                        int[] newPos = robot.executeBehavior(cells, cellCols, cellRows);
+                                        if (newPos != null) {
+                                                // Store: [oldX, oldY, newX, newY]
+                                                moves.add(new int[] {x, y, newPos[0], newPos[1]});
+                                        }
                                 }
+                        }
+                }
+
+                // Apply all moves
+                for (int[] move : moves) {
+                        int oldX = move[0];
+                        int oldY = move[1];
+                        int newX = move[2];
+                        int newY = move[3];
+
+                        // Double-check the target cell is still empty
+                        if (cells[newX][newY] == null) {
+                                Robot robot = cells[oldX][oldY];
+                                cells[oldX][oldY] = null;
+                                cells[newX][newY] = robot;
+                                robot.setPosition(newX, newY);
                         }
                 }
           }
