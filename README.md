@@ -6,4 +6,4 @@ The professor wanted us to build a simple game in which on the screen little squ
 
 I took this a step further and instead of having robots randomly attack each other - I had the robots first collect attributes from opposing robots and then use a linear regression model to determine whether they should attack or not.
 
-This was super cool but I lost the final assignment with the model.  I'd like to recreate this some day.
+I built this while working for HNC Software (now Fair Isaac) that was one of the first companies to use AI to determine credit card fraud transactions using AI.
