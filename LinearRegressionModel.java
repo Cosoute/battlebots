@@ -12,7 +12,7 @@
  * to calculate a combat effectiveness score based on robot attributes.
  *
  * The model uses the formula:
- * Score = w1*strength + w2*weaponPower + w3*speed + w4*damage + intercept
+ * Score = w1*armor + w2*weaponPower + w3*maneuver + w4*damage + intercept
  *
  * where w1, w2, w3, w4 are weight coefficients learned or configured
  * for each attribute.
@@ -20,9 +20,9 @@
 public class LinearRegressionModel
 {
   // Regression coefficients (weights) for each attribute
-  private double strengthWeight;
+  private double armorWeight;
   private double weaponPowerWeight;
-  private double speedWeight;
+  private double maneuverWeight;
   private double damageWeight;
   private double intercept;
 
@@ -31,18 +31,18 @@ public class LinearRegressionModel
    * These weights determine the importance of each attribute in the decision.
    *
    * Default weights are chosen to balance all attributes:
-   * - Strength: 2.5 (high importance for defensive capability)
+   * - Armor: 2.5 (high importance for defensive capability)
    * - Weapon Power: 3.0 (highest importance for offensive capability)
-   * - Speed: 1.5 (medium importance for maneuverability)
+   * - Maneuver: 1.5 (medium importance for maneuverability)
    * - Damage: -2.0 (negative because more damage means weaker robot)
    * - Intercept: 10.0 (baseline score)
    */
   public LinearRegressionModel()
   {
     // Default regression weights - can be tuned based on training data
-    this.strengthWeight = 2.5;
+    this.armorWeight = 2.5;
     this.weaponPowerWeight = 3.0;
-    this.speedWeight = 1.5;
+    this.maneuverWeight = 1.5;
     this.damageWeight = -2.0;  // Negative because damage is a penalty
     this.intercept = 10.0;
   }
@@ -50,19 +50,19 @@ public class LinearRegressionModel
   /**
    * Constructor with custom weights for advanced users
    *
-   * @param strengthWeight Weight for strength attribute
+   * @param armorWeight Weight for armor attribute
    * @param weaponPowerWeight Weight for weapon power attribute
-   * @param speedWeight Weight for speed attribute
+   * @param maneuverWeight Weight for maneuver attribute
    * @param damageWeight Weight for damage attribute
    * @param intercept Intercept term (baseline score)
    */
-  public LinearRegressionModel(double strengthWeight, double weaponPowerWeight,
-                                double speedWeight, double damageWeight,
+  public LinearRegressionModel(double armorWeight, double weaponPowerWeight,
+                                double maneuverWeight, double damageWeight,
                                 double intercept)
   {
-    this.strengthWeight = strengthWeight;
+    this.armorWeight = armorWeight;
     this.weaponPowerWeight = weaponPowerWeight;
-    this.speedWeight = speedWeight;
+    this.maneuverWeight = maneuverWeight;
     this.damageWeight = damageWeight;
     this.intercept = intercept;
   }
@@ -70,20 +70,20 @@ public class LinearRegressionModel
   /**
    * Calculate the combat effectiveness score using linear regression
    *
-   * @param strength Robot's strength attribute
+   * @param armor Robot's armor attribute
    * @param weaponPower Robot's weapon power attribute
-   * @param speed Robot's speed attribute
+   * @param maneuver Robot's maneuver attribute
    * @param damage Robot's accumulated damage (penalty)
    * @return Calculated combat effectiveness score
    */
-  public double calculateScore(double strength, double weaponPower,
-                                double speed, double damage)
+  public double calculateScore(double armor, double weaponPower,
+                                double maneuver, double damage)
   {
     // Linear regression formula: y = w1*x1 + w2*x2 + w3*x3 + w4*x4 + intercept
     double score = intercept +
-                   (strengthWeight * strength) +
+                   (armorWeight * armor) +
                    (weaponPowerWeight * weaponPower) +
-                   (speedWeight * speed) +
+                   (maneuverWeight * maneuver) +
                    (damageWeight * damage);
 
     return score;
@@ -108,32 +108,32 @@ public class LinearRegressionModel
   {
     return String.format(
       "Linear Regression Model Parameters:\n" +
-      "  Strength Weight: %.2f\n" +
+      "  Armor Weight: %.2f\n" +
       "  Weapon Power Weight: %.2f\n" +
-      "  Speed Weight: %.2f\n" +
+      "  Maneuver Weight: %.2f\n" +
       "  Damage Weight: %.2f\n" +
       "  Intercept: %.2f\n",
-      strengthWeight, weaponPowerWeight, speedWeight, damageWeight, intercept
+      armorWeight, weaponPowerWeight, maneuverWeight, damageWeight, intercept
     );
   }
 
   /**
    * Update model weights (allows for learning/tuning)
    */
-  public void setWeights(double strengthWeight, double weaponPowerWeight,
-                         double speedWeight, double damageWeight, double intercept)
+  public void setWeights(double armorWeight, double weaponPowerWeight,
+                         double maneuverWeight, double damageWeight, double intercept)
   {
-    this.strengthWeight = strengthWeight;
+    this.armorWeight = armorWeight;
     this.weaponPowerWeight = weaponPowerWeight;
-    this.speedWeight = speedWeight;
+    this.maneuverWeight = maneuverWeight;
     this.damageWeight = damageWeight;
     this.intercept = intercept;
   }
 
   // Getters for individual weights
-  public double getStrengthWeight()
+  public double getArmorWeight()
   {
-    return strengthWeight;
+    return armorWeight;
   }
 
   public double getWeaponPowerWeight()
@@ -141,9 +141,9 @@ public class LinearRegressionModel
     return weaponPowerWeight;
   }
 
-  public double getSpeedWeight()
+  public double getManeuverWeight()
   {
-    return speedWeight;
+    return maneuverWeight;
   }
 
   public double getDamageWeight()
